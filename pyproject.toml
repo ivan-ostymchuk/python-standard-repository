@@ -1,0 +1,60 @@
+[tool.poetry]
+name = "python-standard-repository"
+version = "0.1.0"
+description = "Standard repository I use for my projects in Python."
+authors = ["Ivan Ostymchuk"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pandas = "2.1.4"
+poetry-plugin-export = "^1.6.0"
+
+[tool.poetry.group.cicd-linting.dependencies]
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+black = "^23.1.0"
+isort = "^5.12.0"
+ruff = "^0.1.8"
+mypy = "^1.0.1"
+bandit = "^1.7.3"
+pydocstyle = "^6.3.0"
+tomli = "^2.0.1"
+
+[tool.poetry.group.cicd-unit-tests.dependencies]
+pandas = "2.1.4"
+python-dateutil = "^2.8.2"
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+setuptools = "^65.6.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+
+[tool.bandit]
+targets = ["src"]
+exclude_dirs = ["tests/"]
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "D"]
+ignore = ["D100", "D104"]
+fixable = ["ALL"]
+unfixable = []
+exclude = ["tests/*.py"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

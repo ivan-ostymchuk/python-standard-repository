@@ -1,0 +1,15 @@
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  LintingCheck:
+    uses: ./.github/workflows/linting.yml
+
+  UnitTestsCheck:
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    uses: ./.github/workflows/run-tests.yml

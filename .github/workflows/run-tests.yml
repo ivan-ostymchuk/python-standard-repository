@@ -1,0 +1,46 @@
+on:
+  workflow_call:
+
+jobs:
+  UnitTests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: 'Sudo Update'
+        run: |
+          sudo apt-get update
+
+      - name: 'Install poetry'
+        run: |
+          pip install poetry
+
+      - name: 'Install python dependencies'
+        run: |
+          poetry install --only cicd-unit-tests --sync
+
+      - name: 'Run Unit Tests'
+        run: |
+          poetry run pytest -v tests/ --junitxml=test_results.xml --cov=src/ --cov-config=.coveragerc --cov-append --cov-report=xml:coverage.xml
+
+      - name: 'Copy Test Results'
+        run: |
+          mkdir test-results && cp -Lpr test_results.xml test-results/test_results.xml
+        shell: bash
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: |
+            test-results/**/*.xml
+
+      - name: Publish Coverage Results
+        uses: 5monkeys/cobertura-action@master
+        with:
+          path: coverage.xml
+          minimum_coverage: 40

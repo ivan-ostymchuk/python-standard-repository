@@ -1,0 +1,37 @@
+on:
+  workflow_call:
+
+jobs:
+  Linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: 'Install poetry'
+        run: |
+          pip install poetry
+
+      - name: 'Install python dependencies'
+        run: |
+          poetry install --only cicd-linting --sync
+
+      - name: 'Show installed dependencies'
+        run: |
+          poetry show
+
+      - name: 'Ruff Python linter'
+        run: |
+          poetry run ruff check .
+
+      - name: 'Mypy static type check'
+        run: |
+          poetry run mypy .
+
+      - name: 'Bandit code security check'
+        run: |
+          poetry run bandit -c pyproject.toml -r .

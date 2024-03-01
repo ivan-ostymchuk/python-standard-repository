@@ -1,0 +1,78 @@
+default_stages: [commit]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-added-large-files # Prevent giant files from being committed
+        args: ['--maxkb=5000']
+      - id: check-ast # Simply check whether files parse as valid python
+      - id: check-case-conflict # Check for files with names that would conflict on a case-insensitive filesystem like MacOS HFS+ or Windows FAT.
+      - id: check-docstring-first # Checks for a common error of placing code before the docstring
+      - id: check-json # Attempts to load all json files to verify syntax
+      - id: check-merge-conflict # Check for files that contain merge conflict strings
+      - id: check-symlinks # Checks for symlinks which do not point to anything
+      - id: check-toml # Attempts to load all TOML files to verify syntax
+      - id: check-yaml # Attempts to load all yaml files to verify syntax
+      - id: debug-statements # Check for debugger imports and py37+ breakpoint() calls in python source
+      - id: detect-private-key # Checks for the existence of private keys
+      # - id: double-quote-string-fixer # This hook replaces double quoted strings with single quoted strings
+      - id: end-of-file-fixer # Makes sure files end in a newline and only a newline
+        exclude: README.md
+      - id: name-tests-test # verifies that tests files are named correctly. --pytest (the default): ensure tests match test_.*\.py
+        args: ['--pytest-test-first']
+      - id: pretty-format-json # Checks that all your JSON files are pretty. "Pretty" here means that keys are sorted and indented. You can configure this with the following commandline options
+        args: ['--autofix']
+      # - id: requirements-txt-fixer # Sorts entries in requirements.txt and removes incorrect entry for pkg-resources==0.0.0
+      - id: trailing-whitespace # Trims trailing whitespace.
+        exclude: README.md
+
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.1.14
+    hooks:
+      # Ruff is a very fast lint wrapper for python.
+      - id: ruff
+        args: [ --fix ]
+        additional_dependencies: [ "ruff[toml]" ]
+      # Run the formatter.
+      - id: ruff-format
+        additional_dependencies: [ "ruff[toml]" ]
+
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.8.0'
+    hooks:
+      # Mypy is an optional static type checker for Python that aims to combine the benefits of dynamic (or "duck") typing and static typing
+      - id: mypy
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.6
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml", "-r"]
+        additional_dependencies: [ "bandit[toml]" ]
+
+  - repo: https://github.com/python-poetry/poetry
+    rev: '1.7.0'
+    hooks:
+      # The poetry-check hook calls the poetry check command to make sure the poetry configuration does not get committed in a broken state
+      - id: poetry-check
+      # The poetry-lock hook calls the poetry lock command to make sure the lock file is up-to-date when committing changes.
+      - id: poetry-lock
+      # The poetry-export hook calls the poetry export command to sync your requirements.txt file with your current dependencies.
+      - id: poetry-export
+        args: [ "--without-hashes", "-f", "requirements.txt", "-o", "requirements.txt" ]
+        verbose: true
+        stages: [commit, push]
+
+  - repo: local
+    hooks:
+      - id: tests
+        name: Unit Tests
+        entry: poetry run pytest tests/ -v --cov-report term --cov=src/
+        language: system
+        types: [python]
+        pass_filenames: false
+        verbose: true
+        stages: [commit, push]
